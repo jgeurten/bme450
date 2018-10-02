@@ -1,4 +1,4 @@
-function [x, final] = simBallTrajectory(v0, azim, back, elev, side, rho_in, aero_coeffs)
+function [x, final,t] = simBallTrajectory(v0, azim, back, elev, side, rho_in, aero_coeffs)
 
 global radius mass rho area inertia gravity tx ty tz Cd Cl Cm
 

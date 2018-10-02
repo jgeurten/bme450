@@ -1,6 +1,7 @@
 %Lab 1 - Jordan Geurten for BME 450
 
 %Read these in from .csv, and iterate through:
+clear all, close all
 load('lab1data.mat'); 
 SPEED_COL = 2; 
 ANGLE_COL = 3; 
@@ -13,6 +14,8 @@ Cd = 0.28;
 Cl = 0.25;  
 Cm = 0.1; 
 aero_coeffs = [Cd,Cl,Cm]; 
+%From optimization section (0.25,0.25, 0.05)
+aero_coeffs = [0.25, 0.25, 0.05];
 
 figure 
 for shotID = 1:size(lab1data, 1)
@@ -21,9 +24,10 @@ for shotID = 1:size(lab1data, 1)
     angle = table2array(lab1data(shotID, ANGLE_COL)); 
     azim = table2array(lab1data(shotID, AZIM_COL)); 
     backspin = table2array(lab1data(shotID, BACKSPIN_COL));
-    side = table2array(lab1data(shotID, SIDESPIN_COL)); 
+    side_spin = table2array(lab1data(shotID, SIDESPIN_COL)); 
     %Add to the figure
-    [x, final] = simBallTrajectory(v0, azim, backspin, angle, side, rho_in, aero_coeffs);
+    [x, final,t] = simBallTrajectory(v0, azim, backspin, angle, side_spin, rho_in, aero_coeffs);
+    times(shotID) = t(end); 
     dispName = strcat('ShotID ', int2str(shotID)); 
     plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3, 'DisplayName', dispName);
     legend('-DynamicLegend');
@@ -44,13 +48,13 @@ v0 = table2array(lab1data(SHOT_ID, SPEED_COL));
 angle = table2array(lab1data(SHOT_ID, ANGLE_COL)); 
 azim = table2array(lab1data(SHOT_ID, AZIM_COL)); 
 backspin = table2array(lab1data(SHOT_ID, BACKSPIN_COL));
-side = table2array(lab1data(SHOT_ID, SIDESPIN_COL)); 
+side_spin = table2array(lab1data(SHOT_ID, SIDESPIN_COL)); 
 
 rho_in = [0.5*rho_default:rho_default/9*(1.5-0.5):1.5*rho_default]; %10 rho's to test
 %Add to the figure
 figure
 for rho = rho_in
-    [x, final] = simBallTrajectory(v0, azim, backspin, angle, side, rho, aero_coeffs);
+    [x, final] = simBallTrajectory(v0, azim, backspin, angle, side_spin, rho, aero_coeffs);
     dispName = strcat('Rho = ', num2str(rho)); 
     plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3, 'DisplayName', dispName);
     legend('-DynamicLegend');
@@ -81,10 +85,10 @@ for Cd = 0:0.05:0.5
                 angle = table2array(lab1data(shotID, ANGLE_COL)); 
                 azim = table2array(lab1data(shotID, AZIM_COL)); 
                 backspin = table2array(lab1data(shotID, BACKSPIN_COL));
-                side = table2array(lab1data(shotID, SIDESPIN_COL)); 
+                side_spin = table2array(lab1data(shotID, SIDESPIN_COL)); 
                 
                 aero_coeffs = [Cd, Cl, Cm];
-                [x, final] = simBallTrajectory(v0, azim, backspin, angle, side, rho_default, aero_coeffs);
+                [x, final] = simBallTrajectory(v0, azim, backspin, angle, side_spin, rho_default, aero_coeffs);
                 if(final == -1)
                     break
                 end
@@ -101,4 +105,29 @@ for Cd = 0:0.05:0.5
             sum_diffs = 0; 
         end 
     end
+end
+
+%% Part 4 - Optimization between backspin and launch angle
+
+back_spin = 1000:4500; %in units of rpm
+launch_angle = 0:45; %in units degrees
+rho_default = 0.0023769;
+
+%From optimization section (0.25,0.25, 0.05)
+aero_coeffs = [0.25, 0.25, 0.05];
+
+%Assume straight shot
+side_spin = 0; 
+azim = 0; 
+
+%Calculate average ball speed per shot:
+%Cannot use final distance/time, since time is set to 10
+for shotID = 1:size(lab1data, 1)
+    v0 = table2array(lab1data(shotID, SPEED_COL)); 
+    angle = table2array(lab1data(shotID, ANGLE_COL)); 
+    backspin = table2array(lab1data(shotID, BACKSPIN_COL));
+    [x, final] = simBallTrajectory(v0, azim, backspin, angle, side_spin, rho_default, aero_coeffs);
+    
+    avg_speed(shotID) = sqrt((mean(x(1)))^2 + (mean(x(2)))^2); %no contribution from Vz
+    avg_speed(shotID) = mean(x(1)); 
 end
