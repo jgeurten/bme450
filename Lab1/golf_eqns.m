@@ -7,16 +7,11 @@ function xdot = golf_eqns(t,x)
 
 xdot = zeros(7,1);
 
-global radius mass rho area inertia gravity tx ty tz
+global radius mass rho area inertia gravity tx ty tz Cd Cl Cm
 
 speed = sqrt(x(1)*x(1)+x(2)*x(2)+x(3)*x(3));
 omega = x(7);
 Q = rho*speed*speed*area/2;
-
-%From assignment Part 1 definition
-Cd = 0.28;  
-Cl = 0.25;  
-Cm = 0.1; 
 
 xdot(1) = (-Q*Cd*x(1)/speed + Q*Cl*(ty*x(3)-tz*x(2))/speed)/mass ;
 xdot(2) = (-Q*Cd*x(2)/speed + Q*Cl*(tz*x(1)-tx*x(3))/speed)/mass - gravity;

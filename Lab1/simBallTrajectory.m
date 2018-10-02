@@ -1,6 +1,6 @@
-function [x, final] = simBallTrajectory(v0, azim, back, elev, side, rho_in)
+function [x, final] = simBallTrajectory(v0, azim, back, elev, side, rho_in, aero_coeffs)
 
-global radius mass rho area inertia gravity tx ty tz
+global radius mass rho area inertia gravity tx ty tz Cd Cl Cm
 
 %%Part 1
 PI = 3.1415926535;
@@ -11,6 +11,12 @@ mass = (1.62/16)/gravity;
 rho = rho_in; 
 area = PI*radius*radius;
 inertia = 0.4*mass*radius*radius;
+%From assignment Part 1 definition
+
+Cd = aero_coeffs(1); 
+Cl = aero_coeffs(2); 
+Cm = aero_coeffs(3);
+
 %  Launch conditions
 rifle = 0;   % in rpm, about global X
 
