@@ -1,5 +1,9 @@
 function [x, final,t] = simBallTrajectory(v0, azim, back, elev, side, rho_in, aero_coeffs)
 
+%% change this function definition to function [x, final] = simBallTrajectory(params, aero_coeffs)
+%% if size(params) > 5 ==> rho = params(6) else rho = 0.0023769; 
+%% v0 = params(1), azim = params(2), back = params(3), elev = params(4), side = params(5), 
+
 global radius mass rho area inertia gravity tx ty tz Cd Cl Cm
 
 %%Part 1
