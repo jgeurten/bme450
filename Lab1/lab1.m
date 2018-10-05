@@ -107,6 +107,25 @@ for Cd = 0:0.05:0.5
     end
 end
 
+/////////////////
+
+%% x  = fmincon(@myCostFunc, x0) where @myCostFunc is a handle to function myCostFunc
+%% function cost = myCostFunc(aeroParams)
+
+% weight1 = 0.8; 
+% weight2 = 0.2; 
+
+% [x, final] = simBalltrajectory(params, aeroParams, expVals); 
+% %expVals ==> read in from the lab1data.mat
+
+% sim_distance = x(final,4)/3;
+% sim_apex = max(x(1)); 
+% exp_distance = expVals(1); 
+% exp_apex = expVals(2); 
+% cost = weight1*abs(sim_distance - exp_distance) + weight2*abs(sim_apex - exp_apex); 
+
+/////////////////
+
 %% Part 4 - Optimization between backspin and launch angle
 
 back_spin = 1000:4500; %in units of rpm
