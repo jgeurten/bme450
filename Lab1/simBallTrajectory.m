@@ -1,18 +1,23 @@
-function [x, final,t] = simBallTrajectory(v0, azim, back, elev, side, rho_in, aero_coeffs)
-
-%% change this function definition to function [x, final] = simBallTrajectory(params, aero_coeffs)
-%% if size(params) > 5 ==> rho = params(6) else rho = 0.0023769; 
-%% v0 = params(1), azim = params(2), back = params(3), elev = params(4), side = params(5), 
+function [x, final,t] = simBallTrajectory(launch_params, aero_coeffs)
 
 global radius mass rho area inertia gravity tx ty tz Cd Cl Cm
+v0 = launch_params(1); 
+azim = launch_params(2); 
+back = launch_params(3); 
+elev = launch_params(4); 
+side = launch_params(5); 
+
+if size(launch_params) > 5
+    rho = launch_params(6);
+    else rho = 0.0023769; 
+end
+
 
 %%Part 1
 PI = 3.1415926535;
 gravity = 32.17;
 radius = (1.68/2)/12;
 mass = (1.62/16)/gravity;
-%rho = 0.0023769;
-rho = rho_in; 
 area = PI*radius*radius;
 inertia = 0.4*mass*radius*radius;
 %From assignment Part 1 definition
