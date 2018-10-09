@@ -7,26 +7,22 @@ back = launch_params(3);
 elev = launch_params(4); 
 side = launch_params(5); 
 
-if size(launch_params) > 5
+if length(launch_params) > 5
     rho = launch_params(6);
     else rho = 0.0023769; 
 end
 
-
-%%Part 1
 PI = 3.1415926535;
 gravity = 32.17;
 radius = (1.68/2)/12;
 mass = (1.62/16)/gravity;
 area = PI*radius*radius;
 inertia = 0.4*mass*radius*radius;
-%From assignment Part 1 definition
 
 Cd = aero_coeffs(1); 
 Cl = aero_coeffs(2); 
 Cm = aero_coeffs(3);
 
-%  Launch conditions
 rifle = 0;   % in rpm, about global X
 
 vx = (v0*cos(elev*PI/180)*cos(azim*PI/180))*88/60;
