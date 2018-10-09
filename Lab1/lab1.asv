@@ -28,6 +28,7 @@ for shotID = 1:size(lab1data, 1)
     azim = table2array(lab1data(shotID, AZIM_COL)); 
     backspin = table2array(lab1data(shotID, BACKSPIN_COL));
     side_spin = table2array(lab1data(shotID, SIDESPIN_COL)); 
+    
     %Add to the figure
     [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], aero_coeffs);
     dispName = strcat('Shot ', int2str(shotID)); 
@@ -44,7 +45,7 @@ legend('show')
 saveas(gcf, 'allShots.png');
 
 %% Part 2 - Plot shot distance, X, as a function of air density
-%Take one shot - take shot 5, straightest, not that that matters
+%Take one shot - take shot 5
 
 %Get params for shot_id 5
 SHOT_ID = 5; 
@@ -59,7 +60,7 @@ rho_in = 0.5*rho_default:rho_default/9*(1.5-0.5):1.5*rho_default; %10 rho's to t
 carry = zeros(10, 1);
 apexes = zeros(10,1);
 count = 1; 
-%Add to the figure
+
 figure
 for rho = rho_in
     [x, final] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho], aero_coeffs);
@@ -76,13 +77,55 @@ ylabel('Y Distance (yd)');
 zlabel('Z Distance (yd)'); 
 legend('show')
 saveas(gcf, 'shotFive_RhoVariable.png');
-
-%% Part 3 - Find Cl,Cd,Cm such that the difference between theoretical and 
+%% Part 3 - Find Cl,Cd,Cm such that the difference between theoretical and simulated trajectories
  
 guessCoeffs =[0.2,0.2,0.1];
-optimalCoeffs  = fmincon(@optimizeAero, guessCoeffs)
+lBounds = [0,0,0]; 
+uBounds = [.5,.5,.5]; 
+[optimalCoeffs, cost]  = fmincon(@optimizeAero, guessCoeffs,[],[],[],[],lBounds, uBounds)
 save('optimalCoeffs.mat', 'optimalCoeffs'); 
 %optimalCoeffs1 = [.1713, .0847,.10]
+%optimalCoeffs2 = [0.1241    0.0432    0.6342]
+%% Part 3 - 2: Plot exp and sim trajectories
+load('optimalCoeffs.mat')
+for shotID = 1:size(lab1data, 1)
+    
+    %Get experimental data
+    figure
+    v0 = table2array(lab1data(shotID, SPEED_COL)); 
+    angle = table2array(lab1data(shotID, ANGLE_COL)); 
+    azim = table2array(lab1data(shotID, AZIM_COL)); 
+    backspin = table2array(lab1data(shotID, BACKSPIN_COL));
+    side_spin = table2array(lab1data(shotID, SIDESPIN_COL)); 
+    
+    %Experimental Trajectory
+    [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], aero_coeffs);
+    dispName = ['Shot ', int2str(shotID), ' Exp']; %strcat('Shot ', int2str(shotID), 'sim'); 
+    plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
+    carry(shotID) = x(final,4)/3;
+    apexes(shotID) = max(x(1:final,5)/3); 
+    txt = ['Apex: ', int2str(apexes(shotID)), 'yds']; 
+    %txt = {'Plotted Data:','y = sin(x)'};
+    text(carry(shotID)/2,apexes(shotID),txt)
+    txt = [ 'Distance: ', int2str(carry(shotID)), '\rightarrow'];
+    text(carry(shotID)/1.55, apexes(shotID)/2,txt); 
+    hold on
+    
+    %Simulated Trajectory
+    [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], optimalCoeffs);
+    dispName = ['Shot ', int2str(shotID), ' Sim']; 
+    plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
+    carry(shotID) = x(final,4)/3;
+    apexes(shotID) = max(x(1:final,5)/3); 
+    txt = ['Apex: ', int2str(apexes(shotID)), 'yds']; 
+    %txt = {'Plotted Data:','y = sin(x)'};
+    text(carry(shotID)/2,apexes(shotID),txt)
+    txt = [ 'Distance: ', int2str(carry(shotID)), '\rightarrow'];
+    text(carry(shotID)/1.55, apexes(shotID)/2,txt); 
+    legend('show'); 
+    
+    saveas(gcf, ['part3_sim_exp_', int2str(shotID),'.png']); 
+end
 %% Part 4 - Optimization between backspin and launch angle
 
 lBounds = [1000, 0]; 

@@ -11,8 +11,8 @@ cost = 0;
 
 load('lab1data.mat')
 
-weight1 = 0.8; 
-weight2 = 0.2;
+weight1 = 0.7; 
+weight2 = 0.3;
 rho_in = 0.0023769; 
 
 for shotID = 1:size(lab1data, 1)
@@ -27,8 +27,13 @@ for shotID = 1:size(lab1data, 1)
     exp_distance = table2array(lab1data(shotID, CARRY_COL)); 
     exp_apex = table2array(lab1data(shotID, APEX_COL)); 
 
-    sim_distance = x(final,4)/3;
-    sim_apex = max(x(:,5));
+    if(final == -1)
+        sim_distance = 0; 
+        sim_apex = 0; 
+    else
+        sim_distance = x(final,4)/3;
+        sim_apex = max(x(:,5));
+    end
  
     cost = cost + weight1*abs(sim_distance - exp_distance) + weight2*abs(sim_apex - exp_apex);
 end
