@@ -30,7 +30,7 @@ for shotID = 1:size(lab1data, 1)
     side_spin = table2array(lab1data(shotID, SIDESPIN_COL)); 
     %Add to the figure
     [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], aero_coeffs);
-    dispName = strcat('ShotID ', int2str(shotID)); 
+    dispName = strcat('Shot ', int2str(shotID)); 
     plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3, 'DisplayName', dispName);
     carry(shotID) = x(final,4)/3;
     apexes(shotID) = max(x(1:final,5)/3); 
