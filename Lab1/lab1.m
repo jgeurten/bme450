@@ -121,8 +121,10 @@ for shotID = 1:size(lab1data, 1)
     %txt = {'Plotted Data:','y = sin(x)'};
     text(carry(shotID)/2,apexes(shotID),txt)
     txt = [ 'Distance: ', int2str(carry(shotID)), '\rightarrow'];
-    text(carry(shotID)/1.55, apexes(shotID)/2,txt); 
-    legend('show'); 
+    text(carry(shotID)/1.6, apexes(shotID)/2.2,txt); 
+    legend('show');
+    xlabel('X Distance (yds)'); 
+    ylabel('Y Height (yds)');
     
     saveas(gcf, ['part3_sim_exp_', int2str(shotID),'.png']); 
 end
