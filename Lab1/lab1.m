@@ -33,8 +33,8 @@ for shotID = 1:size(lab1data, 1)
     [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], aero_coeffs);
     dispName = strcat('Shot ', int2str(shotID)); 
     plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3, 'DisplayName', dispName);
-    carry(shotID) = x(final,4)/3;
-    apexes(shotID) = max(x(1:final,5)/3); 
+    carry = x(final,4)/3;
+    apexY = max(x(1:final,5)/3); 
     legend('-DynamicLegend');
     hold on
 end
@@ -101,39 +101,41 @@ for shotID = 1:size(lab1data, 1)
     %Experimental Trajectory
     [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], aero_coeffs);
     dispName = ['Shot ', int2str(shotID), ' Exp']; %strcat('Shot ', int2str(shotID), 'sim'); 
-    plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
-    carry(shotID) = x(final,4)/3;
-    apexes(shotID) = max(x(1:final,5)/3); 
-    txt = ['Apex: ', int2str(apexes(shotID)), 'yds']; 
-    %txt = {'Plotted Data:','y = sin(x)'};
-    text(carry(shotID)/2,apexes(shotID),txt)
-    txt = [ 'Distance: ', int2str(carry(shotID)), '\rightarrow'];
-    text(carry(shotID)/1.55, apexes(shotID)/2,txt); 
+    plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3,  'DisplayName', dispName);
+    carry = x(final,4)/3;
+    [apexY, apexI] = max(x(1:final,5)/3); 
+    txt = ['Apex: ', int2str(apexY), 'yds']; 
+    text(x(apexI,4)/3,apexY, x(apexI, 6)/3,txt)
+    txt = ['Exp pos: (', int2str(carry), ',0,', int2str(x(final,6)/3), ')'];
+    text(carry,10,x(final,6)/3,txt); 
     hold on
     
     %Simulated Trajectory
     [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], optimalCoeffs);
     dispName = ['Shot ', int2str(shotID), ' Sim']; 
-    plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
-    carry(shotID) = x(final,4)/3;
-    apexes(shotID) = max(x(1:final,5)/3); 
-    txt = ['Apex: ', int2str(apexes(shotID)), 'yds']; 
-    %txt = {'Plotted Data:','y = sin(x)'};
-    text(carry(shotID)/2,apexes(shotID),txt)
-    txt = [ 'Distance: ', int2str(carry(shotID)), '\rightarrow'];
-    text(carry(shotID)/1.6, apexes(shotID)/2.2,txt); 
+    plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3, 'DisplayName', dispName);
+    carry = x(final,4)/3;
+    [apexY, apexI] = max(x(1:final,5)/3); 
+    txt = ['Apex: ', int2str(apexY), 'yds']; 
+    text(x(apexI,4)/3,apexY, x(apexI, 6)/3,txt)
+    txt = ['Sim pos: (', int2str(carry), ',0,', int2str(x(final,6)/3), ')'];
+    text(carry,10,x(final,6)/3,txt); 
+    hold on 
     legend('show');
     xlabel('X Distance (yds)'); 
     ylabel('Y Height (yds)');
-    
+    zlabel('Z offline (yds)');
+   
+    view(3)
+    camup([0 1 0])  
     saveas(gcf, ['part3_sim_exp_', int2str(shotID),'.png']); 
 end
 %% Part 4 - Optimization between backspin and launch angle
 
 lBounds = [1000, 0]; 
 uBounds = [4000, 45]; 
-initConds = [4000, 22]; 
-options = optimoptions('fmincon', 'Display', 'iter','Algorithm', 'sqp'); 
+initConds = [2500, 22]; %options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
+options = optimoptions('fmincon','Display','iter', 'Algorithm','sqp', 'OptimalityTolerance', 1e-12); 
 nonlcon = @unitdisk; 
-[optimalLaunchConds, distance] = fmincon(@optimizeLaunch, initConds,[],[],[],[],lBounds, uBounds)
+[optimalLaunchConds, distance] = fmincon(@optimizeLaunch, initConds,[],[],[],[],lBounds, uBounds, [], options)
 %[backspin, launchAngle]

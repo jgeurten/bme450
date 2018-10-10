@@ -9,7 +9,8 @@ side = launch_params(5);
 
 if length(launch_params) > 5
     rho = launch_params(6);
-    else rho = 0.0023769; 
+else
+    rho = 0.0023769;
 end
 
 PI = 3.1415926535;

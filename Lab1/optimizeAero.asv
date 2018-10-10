@@ -7,14 +7,12 @@ BACKSPIN_COL = 5;
 SIDESPIN_COL =6; 
 CARRY_COL = 7; 
 APEX_COL = 8;
-OFFLINE_COL = 9; 
 cost = 0; 
 
 load('lab1data.mat')
 
-weight1 = 0.5; 
-weight2 = 0.15;
-weight3 = 0.35;
+weight1 = 0.7; 
+weight2 = 0.3;
 rho_in = 0.0023769; 
 
 for shotID = 1:size(lab1data, 1)
@@ -28,20 +26,18 @@ for shotID = 1:size(lab1data, 1)
     [x, final,t] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho_in], aero_coeffs); 
     exp_distance = table2array(lab1data(shotID, CARRY_COL)); 
     exp_apex = table2array(lab1data(shotID, APEX_COL)); 
-    exp_offline = table2array(lab1data(shotID,OFFLINE_COL));  
 
     if(final == -1)
         sim_distance = 0; 
-        sim_offline = 1000; 
+        sim_offline = 0
         sim_apex = 0; 
     else
         sim_distance = x(final,4)/3;
         sim_apex = max(x(:,5));
-        sim_offline = x(final, 6)/3; 
     end
  
     cost = cost + weight1*abs(sim_distance - exp_distance) + weight2*abs(sim_apex - exp_apex) ...
-        + weight3*abs(sim_offline - exp_offline);
+        + weight3*abs(;
 end
 end
 

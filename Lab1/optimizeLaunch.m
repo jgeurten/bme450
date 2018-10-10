@@ -19,7 +19,7 @@ function distance = optimizeLaunch(launchConds)
     if distance == 0
         distance = 999999; 
     else
-        distance = 1/distance;
+        distance = -distance;
     end
     
 end
