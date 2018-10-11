@@ -59,6 +59,7 @@ side_spin = table2array(lab1data(SHOT_ID, SIDESPIN_COL));
 rho_in = 0.5*rho_default:rho_default/9*(1.5-0.5):1.5*rho_default; %10 rho's to test
 carry = zeros(10, 1);
 apexes = zeros(10,1);
+offline = zeros(10, 1); 
 count = 1; 
 
 figure
@@ -66,6 +67,7 @@ for rho = rho_in
     [x, final] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho], aero_coeffs);
     dispName = strcat('Rho = ', num2str(rho));
     carry(count) = x(final,4)/3;
+    offline(count) = x(final, 6)/3; 
     apexes(count) = max(x(1:final,5)/3);
     count = count + 1; 
     plot3(x(1:final,4)/3,x(1:final,5)/3,x(1:final,6)/3, 'DisplayName', dispName);
@@ -134,8 +136,34 @@ end
 
 lBounds = [1000, 0]; 
 uBounds = [4000, 45]; 
-initConds = [2500, 22]; %options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
-options = optimoptions('fmincon','Display','iter', 'Algorithm','sqp', 'OptimalityTolerance', 1e-12); 
+initConds = [4000, 22]; %options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
+options = optimoptions('fmincon','Display','iter',  'OptimalityTolerance', 1e-12); 
 nonlcon = @unitdisk; 
 [optimalLaunchConds, distance] = fmincon(@optimizeLaunch, initConds,[],[],[],[],lBounds, uBounds, [], options)
-%[backspin, launchAngle]
+
+save('optimalLaunch.mat', 'optimalLaunchConds'); 
+angles = [10, optimalLaunchConds(2) - 7, optimalLaunchConds(2),optimalLaunchConds(2)+7,45 ];
+
+%plot results:
+avg_velocity = 157; 
+
+%From optimization section
+load('optimalCoeffs.mat');
+aero_coeffs = optimalCoeffs; 
+
+%Assume straight shot
+side_spin = 0; 
+azim = 0; 
+figure
+for ang = angles
+    [x, final,t] = simBallTrajectory([avg_velocity, azim, optimalLaunchConds(1), ang, side_spin], aero_coeffs); 
+    dispName = ['Angle: ', int2str(ang), ' deg']; %, 'Angle: ', num2str(optimalLaunchConds(2)), ' deg',  ]; 
+    plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
+    legend('-DynamicLegend');
+    hold on
+end
+xlabel('X Distance (yd)'); 
+ylabel('Y Distance (yd)');
+zlabel('Z Distance (yd)'); 
+legend('show')
+saveas(gcf, 'optimizeLaunch.png')
