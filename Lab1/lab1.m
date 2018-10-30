@@ -20,6 +20,7 @@ aero_coeffs = [Cd,Cl,Cm];
 aero_coeffs = [0.25, 0.25, 0.05];
 carry = zeros(10, 1);
 apexes = zeros(10,1); 
+
 figure 
 for shotID = 1:size(lab1data, 1)
     %Get X vector and final 
@@ -65,7 +66,8 @@ count = 1;
 figure
 for rho = rho_in
     [x, final] = simBallTrajectory([v0, azim, backspin, angle, side_spin, rho], aero_coeffs);
-    dispName = strcat('Rho = ', num2str(rho));
+    rho_norm = (rho-0.0012)/(0.0036-0.0012) + 0.5; 
+    dispName = ['Rho: ', num2str(rho_norm, '%.2g')];
     carry(count) = x(final,4)/3;
     offline(count) = x(final, 6)/3; 
     apexes(count) = max(x(1:final,5)/3);
@@ -79,6 +81,10 @@ ylabel('Y Distance (yd)');
 zlabel('Z Distance (yd)'); 
 legend('show')
 saveas(gcf, 'shotFive_RhoVariable.png');
+view(2)
+saveas(gcf, 'shotFive_RhoVariable_xy.png');
+view(3)
+saveas(gcf, 'shotFive_RhoVariable_xz.png');
 %% Part 3 - Find Cl,Cd,Cm such that the difference between theoretical and simulated trajectories
  
 guessCoeffs =[0.2,0.2,0.1];
@@ -136,14 +142,14 @@ end
 
 lBounds = [1000, 0]; 
 uBounds = [4000, 45]; 
-initConds = [4000, 22]; %options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
-options = optimoptions('fmincon','Display','iter',  'OptimalityTolerance', 1e-12); 
+initConds = [2500, 22]; %options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
+options = optimoptions('fmincon','Display','iter'); 
 nonlcon = @unitdisk; 
 [optimalLaunchConds, distance] = fmincon(@optimizeLaunch, initConds,[],[],[],[],lBounds, uBounds, [], options)
 
 save('optimalLaunch.mat', 'optimalLaunchConds'); 
 angles = [10, optimalLaunchConds(2) - 7, optimalLaunchConds(2),optimalLaunchConds(2)+7,45 ];
-
+backspins = [1000:500:4000];
 %plot results:
 avg_velocity = 157; 
 
@@ -155,8 +161,22 @@ aero_coeffs = optimalCoeffs;
 side_spin = 0; 
 azim = 0; 
 figure
+for backspin = backspins
+    [x, final,t] = simBallTrajectory([avg_velocity, azim,  backspin, 25, side_spin], aero_coeffs); 
+    dispName = ['Backspin: ', int2str(backspin), ' rpm']; %, 'Angle: ', num2str(optimalLaunchConds(2)), ' deg',  ]; 
+    plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
+    legend('-DynamicLegend');
+    hold on
+end
+xlabel('X Distance (yd)'); 
+ylabel('Y Distance (yd)');
+zlabel('Z Distance (yd)'); 
+legend('show')
+saveas(gcf, 'optimizeLaunch_backSpin.png')
+
+figure
 for ang = angles
-    [x, final,t] = simBallTrajectory([avg_velocity, azim, optimalLaunchConds(1), ang, side_spin], aero_coeffs); 
+    [x, final,t] = simBallTrajectory([avg_velocity, azim,  1000, ang, side_spin], aero_coeffs); 
     dispName = ['Angle: ', int2str(ang), ' deg']; %, 'Angle: ', num2str(optimalLaunchConds(2)), ' deg',  ]; 
     plot(x(1:final,4)/3,x(1:final,5)/3, 'DisplayName', dispName);
     legend('-DynamicLegend');
@@ -166,4 +186,6 @@ xlabel('X Distance (yd)');
 ylabel('Y Distance (yd)');
 zlabel('Z Distance (yd)'); 
 legend('show')
-saveas(gcf, 'optimizeLaunch.png')
+saveas(gcf, 'optimizeLaunch_angles.png')
+
+

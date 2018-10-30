@@ -1,0 +1,11 @@
+%Lab 2 Script
+
+cur_dir = pwd; 
+shot_data = ['Shot Angle', 'ID', 'W_In', 'W_out', 'Vx_In', 'Vx_out', 'Vy_Out', ]
+%Get oblique shot data
+oblique_dir = [cur_dir, '\shots\oblique_angle\shot']; 
+for i=1:5
+    path = [oblique_dir, num2str(i), '.wmv']; 
+    [w_in, w_out, vx_in, vx_out, vy_in, vy_out] = track_golf_ball(path); 
+end
+%Get acute shot data
