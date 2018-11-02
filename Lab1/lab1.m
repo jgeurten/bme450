@@ -43,6 +43,7 @@ xlabel('X Distance (yd)');
 ylabel('Y Distance (yd)');
 zlabel('Z Distance (yd)'); 
 legend('show')
+camup([0 1 0]) 
 saveas(gcf, 'allShots.png');
 
 %% Part 2 - Plot shot distance, X, as a function of air density
@@ -96,10 +97,10 @@ save('optimalCoeffs.mat', 'optimalCoeffs');
 %optimalCoeffs2 = [0.1241    0.0432    0.6342]
 %% Part 3 - 2: Plot exp and sim trajectories
 load('optimalCoeffs.mat')
+figure, 
 for shotID = 1:size(lab1data, 1)
     
     %Get experimental data
-    figure
     v0 = table2array(lab1data(shotID, SPEED_COL)); 
     angle = table2array(lab1data(shotID, ANGLE_COL)); 
     azim = table2array(lab1data(shotID, AZIM_COL)); 
