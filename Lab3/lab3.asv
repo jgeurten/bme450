@@ -59,22 +59,18 @@ lLowerXAngle = lLowerXAngle.'; lLowerYAngle = lLowerYAngle.'; lLowerZAngle = lLo
 
 angular_rUpper = [rUpperXAngle; rUpperYAngle; rUpperZAngle]; 
 
-%Q_rUpper = zeros(3, length(rUpperXAngle)); Q_lUpper = zeros(size(rUpperXAngle)); 
+Q_rUpper = zeros(size(rUpperXAngle)); Q_lUpper = zeros(size(rUpperXAngle)); 
 Q_rLower = zeros(size(rUpperXAngle)); Q_lLower = zeros(size(rUpperXAngle));
-Q_rUpper = []; 
-%IC's 
-IC = trueQuats(1, 6:9); 
 
 for i = 1:length(rUpperXAngle)
     if(i == 1)
         %Use initial conditions
-        Qprev = IC'; 
+        Qprev = IC; 
     else
         %Use prior quaternion:
-        Qprev = Q_rUpper(i-1, :); 
+        Qprev = Q_rUpper(i-1); 
+    Q_rUpper = calQuaternion(Qprev, angular_rUpper(:,i)); 
     end
-    Q_rUpper_t = calcQuaternion(Qprev, angular_rUpper(:,i)); 
-    Q_rUpper = [Q_rUpper; Q_rUpper_t']; 
 end
 
 
