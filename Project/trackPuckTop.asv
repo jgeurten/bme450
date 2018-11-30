@@ -1,0 +1,46 @@
+% Script to track the puck in the top camera frames
+close all; 
+clear all; 
+
+% Constants
+LEFT = 125; 
+TOP = 30;
+BOTTOM = 390; 
+THRESH = 150; 
+R_MIN = 25/2;
+R_MAX = 80/2; 
+SENS = 0.95; 
+
+v = VideoReader('Top_Shot0.MP4'); 
+nFrames = round(v.Duration*v.FrameRate); 
+
+% Get the position of the plex-glass to bound the puck search algo
+first_frame = read(v, 1); 
+lab_frame = rgb2lab(first_frame); 
+ycrcb_frame = rgb2ycbcr(first_frame); 
+
+redBand = first_frame(:,:,1); 
+redMask = uint8(redBand < THRESH);
+masked_Red = redBand.*redMask; 
+figure, imshow(masked_Red)
+
+
+figure, imshow(first_frame(TOP:BOTTOM, LEFT:end,:))
+%saveas(gcf, 'top_frame.png'); 
+
+[centersDark, radiiDark] = imfindcircles(first_frame(TOP:BOTTOM, LEFT:end,2),[R_MIN R_MAX],...
+    'ObjectPolarity','dark','Sensitivity', .99);
+viscircles(centersDark, radiiDark,'LineStyle','--');
+
+
+stop 
+
+vertical_ = imfilter(first_frame(:,:,2), [-3 0 3]); 
+horizontal_ = imfilter(first_frame(:,:,2), [-3 0 3]'); 
+vertical_edges = medfilt2(vertical_, [5 5]); 
+horizontal_edges = medfilt2(horizontal_, [5 5]); 
+vertical_edges = vertical_edges.*10; 
+horizontal_edges = horizontal_edges.*10; 
+
+figure, imshow(vertical_edges, [])
+figure, imshow(horizontal_edges, [])
