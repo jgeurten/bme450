@@ -16,14 +16,14 @@ for path in paths:
     shotCounter = 0
     files = os.listdir(path)
     videoFiles[path] = {}
-    
+
     for video in files:
         videoFiles[path][video] = {}
         time = os.path.getctime(path+video)
         videoFiles[path][video]['time'] = time
-        videoFiles[path][video]['newName'] = ''        
+        videoFiles[path][video]['newName'] = ''
         times.append(time)
-        
+
     # Sort the time stamps and rename files
     list.sort(times)
     for time in times:
@@ -31,13 +31,13 @@ for path in paths:
             if(time == timeInstance['time']):
                 videoFiles[path][videoName]['newName'] = 'Shot_' + str(shotCounter) +'.MP4'
                 shotCounter += 1
-    
+
     for video in videoFiles[path].keys():
         oldName = path + video
         newName = path + videoFiles[path][video]['newName']
         os.rename(oldName, newName)
-        
-path = 'C:/Users/Jordan/Desktop/Cam_Top/'    
+
+path = 'C:/Users/Jordan/Desktop/Cam_Top/'
 files = os.listdir(path)
 shotCounter = 0
 fileNumbers = []

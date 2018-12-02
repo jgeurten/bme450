@@ -1,0 +1,88 @@
+% Script to track the puck in the top camera frames
+close all;
+clear all;
+
+global R_MIN R_MAX
+
+% Constants
+LEFT = 90;
+TOP = 290;
+RIGHT = 650;
+BOTTOM = 480;
+THRESH = 150;
+R_MIN = 40/2;
+R_MAX = 80/2;
+SENS = 0.8;
+
+
+v = VideoReader('Side_Shot_0.MP4');
+nFrames = round(v.Duration*v.FrameRate);
+width = v.Width; height = v. Height; 
+
+frame_int = read(v,261);
+frame_int = frame_int( TOP:BOTTOM,LEFT:RIGHT, :); 
+figure, imshow(frame_int)
+
+
+
+bw = im2bw(frame_int);
+figure, imshow(bw); 
+[center, radius] = imfindcircles(frame_int,[R_MIN R_MAX],...
+'ObjectPolarity','dark','Sensitivity', .95);
+viscircles(center, radius,'LineStyle','--');
+
+
+stop
+
+% Get the position of the plex-glass to bound the puck search algo
+diffs = zeros(length(TOP:BOTTOM), width - LEFT + 1,nFrames-10); 
+% g_frames = zeros(TOP:BOTTOM, LEFT:end,nFrames-10); 
+% b_frames = zeros(TOP:BOTTOM, LEFT:end,nFrames-10); 
+count = 1; 
+for i = 1:2:nFrames - 10
+    temp_frame = read(v,i); 
+    temp_frame_2 = read(v,i+1); 
+    diffs(:,:,count) = temp_frame_2(TOP:BOTTOM, LEFT:end, 1)- ...
+        temp_frame(TOP:BOTTOM, LEFT:end, 1) ; 
+%     g_frames(i) = temp_frame(TOP:BOTTOM, LEFT:END, 2); 
+%     b_frames(i) = temp_frame(TOP:BOTTOM, LEFT:END, 3); 
+    count = count +1; 
+end
+
+sum_diffs = [];
+for i = 1:size(diffs, 3)
+    sum_ = sum(sum(diffs(:,:,i))); 
+    sum_diffs = [sum_diffs; sum_]; 
+end
+
+figure, plot(sum_diffs)
+stop
+
+centers = []; 
+radii = [];
+%for i = 1:size(r_frames,3)
+for i = 1:nFrames  - 10
+    frame_int = read(v, i); 
+    %[center, radius] = imfindcircles(r_frames(:,:,i),[R_MIN R_MAX],...
+    [center, radius] = imfindcircles(frame_int,[R_MIN R_MAX],...
+    'ObjectPolarity','dark');%,'Sensitivity', SENS);
+    if(numel(radius) > 1)
+        [radius, idx] = max(radius); 
+        center = center(idx,:);
+    end
+    centers = [centers; center]; 
+    radii = [radii; radius];  
+end
+
+figure, plot(centers(:,1)); 
+title('X Centers'); 
+
+figure, plot(centers(:,2)); 
+title('Y Centers'); 
+
+stop
+
+%viscircles(centers, radii,'LineStyle','--');
+
+fiducial_centers = trackFiducials(first_frame(TOP:BOTTOM, LEFT:end,:), radii, centers);
+
